@@ -1,13 +1,14 @@
 import express, { type Application, type Request, type Response } from "express";
 import {Pool} from "pg";
+import config from "./config/index.js";
 const app : Application = express()
-const port = 5000
+const port = config.port
 
 app.use(express.json())
 
 
 const pool = new Pool({
-    connectionString:"postgresql://neondb_owner:npg_cMmyIFvVS78H@ep-rough-wind-ap6fognu-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    connectionString: config.connection_string
 })
 
 const initDB = async()=>{
@@ -124,44 +125,47 @@ app.get('/api/users/:id', async(req:Request,res:Response)=>{
     }
 })
 
-app.put('/api/users/:id',async(req:Request,res:Response)=>{
-    const {id} = req.params;
-
-    const {name,age,password,is_active} = req.body
+app.put("/api/users/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { name, age, password, is_active } = req.body;
 
     try {
-        const result = await pool.query(`
-        UPDATE users SET name=COALESCE(name,$1),password=COALASCE(password,$2),age=COALESCE=(age,$3),
-        is_active=COALESCE(is_active,$4) WHERE id=$5 RETURNING *
-        
-        `,[name,age,password,is_active,id])
+        const result = await pool.query(
+            `
+            UPDATE users
+            SET
+                name = COALESCE($1, name),
+                password = COALESCE($2, password),
+                age = COALESCE($3, age),
+                is_active = COALESCE($4, is_active)
+            WHERE id = $5
+            RETURNING *;
+            `,
+            [name, password, age, is_active, id]
+        );
 
-        if(result.rows.length ===0){
-            res.status(404).json({
-                success:false,
-                message:"User is not found!",
-                data:{}
-            })
-
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found!",
+                data: {}
+            });
         }
 
-        
+        res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            data: result.rows[0]
+        });
 
-         res.status(201).json({
-                success:true,
-                message:"User update successfully",
-                data:result.rows[0]
-            })
-
-    } catch (error:any) {
-           res.status(500).json({
-            success:false,
-           message:error.message,
-             data: error
- })
-        
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+            data: error
+        });
     }
-})
+});
 
 app.delete("/api/users/:id",async(req:Request,res:Response)=>{
     const {id} = req.params;

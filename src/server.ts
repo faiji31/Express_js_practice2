@@ -54,11 +54,13 @@ try {
     
     `,[name,email,age,password])
  res.status(201).json({
+      success:true,
     message:"User created successfully!",
     data: result.rows[0]
  })
 } catch (error:any) {
      res.status(500).json({
+          success:false,
     message:error.message,
     data: error
  })
@@ -66,6 +68,60 @@ try {
 }
 
 
+})
+
+app.get('/api/users', async(req:Request,res:Response)=>{
+    try {
+        const result = await pool.query(`
+
+            SELECT * FROM users
+            
+            `)
+            res.status(201).json({
+                success:true,
+                message:"User retirve successfully",
+                data:result.rows
+            })
+         
+    } catch (error:any) {
+          res.status(500).json({
+            success:false,
+           message:error.message,
+             data: error
+ })
+        
+    }
+
+})
+
+app.get('/api/users/:id', async(req:Request,res:Response)=>{
+    const {id}= req.params;
+    try {
+        const result = await pool.query(`
+            SELECT * FROM users WHERE id=$1
+            `,[id])
+
+            if(result.rows.length ===0){
+                res.status(500).json({
+                success:false,
+                message:"User is not found!",
+                data:{}
+            })
+            }
+          
+             res.status(201).json({
+                success:true,
+                message:"User retirve successfully",
+                data:result.rows[0]
+            })
+    } catch (error:any) {
+        res.status(500).json({
+            success:false,
+           message:error.message,
+             data: error
+ })
+        
+    }
 })
 
 app.listen(port, () => {

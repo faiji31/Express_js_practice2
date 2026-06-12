@@ -18,7 +18,7 @@ const initDB = async()=>{
 
             id SERIAL PRIMARY KEY,
             name VARCHAR(20),
-            email VARCHAR(20) NOT NULL,
+            email VARCHAR(20) UNIQUE NOT NULL,
             password VARCHAR(20),
             age INT,
             is_active BOOLEAN DEFAULT TRUE,
@@ -43,11 +43,29 @@ res.status(200).json({
 })
 
 app.post('/',async(req:Request,res:Response)=>{
- const {name,email,age} = req.body
+ const {name,email,age,password} = req.body
+
+try {
+     const result = await pool.query(`
+
+    INSERT INTO users(name,email,age,password) VALUES($1,$2,$3,$4)
+
+    RETURNING *
+    
+    `,[name,email,age,password])
  res.status(201).json({
-    message:"created",
-    data: {name,email,age}
+    message:"User created successfully!",
+    data: result.rows[0]
  })
+} catch (error:any) {
+     res.status(500).json({
+    message:error.message,
+    data: error
+ })
+    
+}
+
+
 })
 
 app.listen(port, () => {

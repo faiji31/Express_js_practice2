@@ -26,6 +26,27 @@ try {
 }
 
 
+const getAllUser = async(req:Request,res:Response)=>{
+    try {
+         const result = await userService.getAllUserDB(req.body)
+            res.status(201).json({
+                success:true,
+                message:"User retirve successfully",
+                data:result.rows
+            })
+         
+    } catch (error:any) {
+          res.status(500).json({
+            success:false,
+           message:error.message,
+             data: error
+ })
+        
+    }
+
+}
+
 export const UserController = {
     createUser,
+    getAllUser
 }

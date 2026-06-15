@@ -6,6 +6,8 @@ const router = Router()
 
 
 router.post('/',UserController.createUser)
+router.get('/',UserController.getAllUser )
+
 
 
 

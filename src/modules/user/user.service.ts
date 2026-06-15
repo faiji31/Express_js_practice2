@@ -16,6 +16,19 @@ const createUserIntoDB = async(payload:IUser)=>{
 }
 
 
+const getAllUserDB = async(payload:IUser)=>{
+    const result = await pool.query(`
+
+            SELECT * FROM users
+            
+            `)
+            return result
+}
+
+
+
+
 export const userService ={
     createUserIntoDB,
+    getAllUserDB
 }

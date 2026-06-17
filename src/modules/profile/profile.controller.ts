@@ -6,6 +6,12 @@ import { profileService } from "./profile.service.js"
 
     try {
         const result = await profileService.createProfileintoDB(req.body)
+        res.status(201).json({
+            success:true,
+            message:"profiles creates successfully!",
+            data:result.rows[0]
+            
+        })
         
     } catch (error:any) {
 

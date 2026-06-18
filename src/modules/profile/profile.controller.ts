@@ -9,8 +9,8 @@ import { profileService } from "./profile.service.js"
         res.status(201).json({
             success:true,
             message:"profiles creates successfully!",
-            data:result.rows[0]
-            
+            data:result
+
         })
         
     } catch (error:any) {
